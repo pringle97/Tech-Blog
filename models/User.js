@@ -31,3 +31,5 @@ User.init(
     sequelize, modelName: 'user'
   }
 )
+
+module.exports = User
