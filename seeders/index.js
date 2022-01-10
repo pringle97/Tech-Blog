@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 const { User, Post } = require('../models')
-const sequelize = require('../db')
+const sequelize = require('../config/connections.js')
 
 async function seeder() {
   await sequelize.sync({ force: true })
