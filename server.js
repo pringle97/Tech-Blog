@@ -34,11 +34,11 @@ passport.use(new JWTStrategy({
 }))
 
 app.use(require('./routes'))
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 3000;
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-app.listen(process.env.PORT || 8000, function () {
+app.listen(process.env.PORT || 3000, function () {
     console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
 })
 
