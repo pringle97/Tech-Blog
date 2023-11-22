@@ -14,12 +14,12 @@ router.get('/comments/:pid', async function (req, res) {
 
 router.post('/comments', passport.authenticate('jwt'), async function (req, res) {
   console.log(req.body) 
-  const comment = await Comment.create({ 
+  const comments = await Comment.create({ 
     content: req.body.content,
     uid: req.user.id,
     pid: req.body.pid
   })
-  res.json(comment)
+  res.json(comments)
 })
 
 module.exports = router
