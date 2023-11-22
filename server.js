@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 const express = require('express')
-const { join } = require('path')
+const path = require('path')
 
 const passport = require('passport')
 const { User, Post } = require('./models')
@@ -9,7 +9,7 @@ const { Strategy: JWTStrategy, ExtractJwt } = require('passport-jwt')
 
 const app = express()
 
-app.use(express.static(join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
@@ -34,7 +34,11 @@ passport.use(new JWTStrategy({
 }))
 
 app.use(require('./routes'))
-app.listen(process.env.PORT || 3000, function () {
+const port = process.env.PORT || 8000;
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+app.listen(process.env.PORT || 8000, function () {
     console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
 })
 
