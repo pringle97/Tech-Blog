@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <title>Tech Blog</title>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/index.html">The Tech Blog</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/profile.html">Profile</a>
+          </li>
+        </ul>
+        <button id="logout" class="btn btn-outline-primary" type="submit">Logout</button>
+      </div>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="row bg-light p-5 rounded-lg mb-3 mt-3">
+      <h1 class="display-4">The Tech Blog</h1>
+      <p class="lead">Join today and share your life with everyone on the internet.</p>
+      <hr class="my-4">
+    </div>
+    <div class="row bg-light p-5 rounded-lg mb-3 mt-3">
+      <div id="myPost"></div>
+      <div class="mb-3">
+        <br>
+        <br>
+        <h6>Comments</h6>
+        <hr>
+        <textarea class="form-control" name="body" id="commentBox" cols="30" rows="5"></textarea>
+      </div>
+      <button id="submitComment" type="button" class="btn btn-dark btn-lg btn-block" data-target="#exampleModal">
+        Submit Comment
+      </button>
+    </div>
+    <div id="comments"></div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"></script>
+
+    <script>
+
+      let postId = localStorage.getItem('postId')
+      axios.get(`/api/posts/${postId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+        .then(res => {
+          let post = res.data
+          let postElem = document.createElement('div')
+          postElem.innerHTML = `
+        <h1> ${post.title} </h1>
+        <h6> Posted by ${post.User.username} at ${post.User.createdAt.slice(0, -14)}</h6>
+        <p> ${post.content} <p>
+        `
+
+          document.getElementById('myPost').append(postElem)
+        })
+
+      function createComment() {
+        let newComment = {
+          body: document.getElementById('commentBox').value,
+          pid: postId
+        }
+        axios.post('/api/notes', newComment, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+          .then(res => {
+          })
+      }
+      document.getElementById("submitComment").addEventListener('click', event => {
+        event.preventDefault()
+        createComment()
+        getAllNotes()
+        location.reload()
+      })
+
+
+      async function logoutUser() {
+        localStorage.removeItem('token')
+        location = '/login.html'
+      }
+
+      document.getElementById("logout").addEventListener('click', event => {
+        event.preventDefault()
+        logoutUser()
+      })
+
+      function getAllNotes() {
+        axios.get(`/api/comments/${postId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        })
+          .then(res => {
+            console.log(res.data)
+            let notes = res.data
+            notes.forEach(note => {
+              let noteElem = document.createElement('div')
+              noteElem.innerHTML = `
+              <h5>${note.User.username} commented at ${note.createdAt.slice(0, -14)}</h5>
+              <h6>${note.body}</h6>              
+              <hr>
+              `
+              document.getElementById('comments').prepend(noteElem)
+              
+              })
+            })
+          }     
+
+      getAllNotes()
+
+    </script>
+</body>
+
+</html>
