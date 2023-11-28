@@ -81,7 +81,7 @@
           body: document.getElementById('commentBox').value,
           pid: postId
         }
-        axios.post('/api/notes', newComment, {
+        axios.post('/api/comments', newComment, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
@@ -92,7 +92,7 @@
       document.getElementById("submitComment").addEventListener('click', event => {
         event.preventDefault()
         createComment()
-        getAllNotes()
+        getAllComments()
         location.reload()
       })
 
@@ -107,29 +107,46 @@
         logoutUser()
       })
 
-      function getAllNotes() {
-        axios.get(`/api/comments/${postId}`, {
+      function getAllComments() {
+        axios.get(`/api/commments/${postId}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         })
-          .then(res => {
-            console.log(res.data)
-            let notes = res.data
-            notes.forEach(note => {
-              let noteElem = document.createElement('div')
-              noteElem.innerHTML = `
-              <h5>${note.User.username} commented at ${note.createdAt.slice(0, -14)}</h5>
-              <h6>${note.body}</h6>              
+          .then(res => {                   
+            let comments = res.data
+            console.log(comments)
+            comments.forEach(comment => {
+              let commentElem = document.createElement('div')
+              commentElem.innerHTML = `
+              <h5>${comment.User.username} commented at ${comment.createdAt.slice(0, -14)}</h5>
+              <h6>${comment.body}</h6>
+              <button id="deleteComment" class="btn btn-dark btn-sm data-postid="${comment.id}">Delete Comment</button>
               <hr>
               `
-              document.getElementById('comments').prepend(noteElem)
-              
+              document.getElementById('comments').prepend(commentElem)
+              document.getElementById("deleteComment").addEventListener('click', event => {
+                event.preventDefault();
+                let headers = {
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+
+                axios.delete(`/api/comments/${comment.id}`, {
+                  headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                  }
+                })
+                  .then(res => {
+                    location = '/post.html'
+                  }).catch(err => {
+                    console.log(err);
+                  })
               })
             })
-          }     
+          })
+      }
 
-      getAllNotes()
+      getAllComments()
 
     </script>
 </body>
